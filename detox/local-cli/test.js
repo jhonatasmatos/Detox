@@ -6,12 +6,16 @@ const environment = require('../src/utils/environment');
 const DetoxConfigError = require('../src/errors/DetoxConfigError');
 
 const log = require('../src/utils/logger').child({ __filename });
-const {getDetoxConfig, getDefaultConfiguration, getConfigurationByKey} = require('./utils/configurationUtils');
 const shellQuote = require('./utils/shellQuote');
 
 module.exports.command = 'test';
 module.exports.desc = 'Run your test suite with the test runner specified in package.json';
 module.exports.builder = {
+  C: {
+    alias: 'config-path',
+    group: 'Configuration:',
+    describe: 'Specify Detox config file path. If not supplied, detox searches for .detoxrc[.js] or "detox" section in package.json',
+  },
   c: {
     alias: ['configuration'],
     group: 'Configuration:',
@@ -143,7 +147,7 @@ module.exports.builder = {
 const collectExtraArgs = require('./utils/collectExtraArgs')(module.exports.builder);
 
 module.exports.handler = async function test(program) {
-  const config = getDetoxConfig();
+  const config = getDetoxConfig({ argv: program });
   const runner = getConfigFor('test-runner') || 'mocha';
   const runnerConfig = getConfigFor('runner-config') || getDefaultRunnerConfig();
 

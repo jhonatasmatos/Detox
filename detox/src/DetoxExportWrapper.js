@@ -29,11 +29,16 @@ class DetoxExportWrapper {
     this._defineProxy('device');
   }
 
-  async init(config, params) {
+  async init(override, userParams) {
     let configError, exposeGlobals, resolvedConfig;
 
     try {
-      resolvedConfig = await configuration.composeDetoxConfig(config, params);
+      resolvedConfig = await configuration.composeDetoxConfig({
+        selectedConfiguration: typeof override === 'string' ? override : undefined,
+        override: typeof override === 'string' ? undefined : override,
+        userParams,
+      });
+
       exposeGlobals = resolvedConfig.behaviorConfig.init.exposeGlobals;
     } catch (err) {
       configError = err;
@@ -50,7 +55,7 @@ class DetoxExportWrapper {
       }
 
       this[_detox] = new Detox(resolvedConfig);
-      await this[_detox].init(params);
+      await this[_detox].init();
       Detox.none.setError(null);
 
       return this[_detox];

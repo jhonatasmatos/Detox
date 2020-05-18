@@ -1,0 +1,8 @@
+---
+session:
+  server: ws://localhost:9999
+  sessionId: external file works
+configurations:
+  simple:
+    type: android.attached
+    device: Hello from .detoxrc
