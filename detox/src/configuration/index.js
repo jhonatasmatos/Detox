@@ -6,6 +6,7 @@ const loadExternalConfig = require('./loadExternalConfig');
 const composeArtifactsConfig = require('./composeArtifactsConfig');
 const composeBehaviorConfig = require('./composeBehaviorConfig');
 const composeDeviceConfig = require('./composeDeviceConfig');
+const composeRunnerConfig = require('./composeRunnerConfig');
 const composeSessionConfig = require('./composeSessionConfig');
 const selectConfiguration = require('./selectConfiguration');
 
@@ -31,9 +32,14 @@ async function composeDetoxConfig({
     });
   }
 
-  const configName  = selectConfiguration({
+  const configName = selectConfiguration({
     detoxConfig,
     cliConfig,
+  });
+
+  const runnerConfig = composeRunnerConfig({
+    cliConfig,
+    detoxConfig,
   });
 
   const deviceConfig = composeDeviceConfig({
@@ -52,7 +58,7 @@ async function composeDetoxConfig({
     cliConfig,
     detoxConfig,
     deviceConfig,
-    userParams,
+    userParams
   });
 
   const sessionConfig = await composeSessionConfig({
@@ -61,14 +67,15 @@ async function composeDetoxConfig({
   });
 
   return {
+    artifactsConfig,
+    behaviorConfig,
+    deviceConfig,
+    runnerConfig,
+    sessionConfig,
     meta: {
       configuration: configName,
       location: cosmiResult && cosmiResult.filepath,
     },
-    artifactsConfig,
-    behaviorConfig,
-    deviceConfig,
-    sessionConfig,
   };
 }
 

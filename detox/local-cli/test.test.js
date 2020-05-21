@@ -1,4 +1,7 @@
 jest.mock('../src/utils/logger');
+jest.mock('../src/configuration');
+jest.mock('child_process');
+
 const {normalize} = require('path');
 const shellQuote = require('./utils/shellQuote');
 
@@ -15,10 +18,7 @@ describe('test', () => {
     process.argv = ['node', 'jest', 'test'];
 
     logger = require('../src/utils/logger');
-    mockExec = jest.fn();
-    jest.mock('child_process', () => ({
-      execSync: mockExec
-    }));
+    mockExec = require('child_process').execSync;
   });
 
   afterEach(() => {
@@ -29,14 +29,20 @@ describe('test', () => {
   const mockIOSJestConfiguration = () => mockConfiguration('ios.sim', 'jest');
   const mockAndroidMochaConfiguration = () => mockConfiguration('android.emulator');
   const mockIOSMochaConfiguration = () => mockConfiguration('ios.sim');
-  const mockConfiguration = (deviceType, runner) => mockDetoxConfig({
-    'test-runner': runner,
-    configurations: {
-      only: {
-        type: deviceType,
-      }
-    }
-  });
+  const mockConfiguration = (deviceType, runner) => {
+    require('../src/configuration').composeDetoxConfig.mockImplementation(async () => {
+      return jest.requireActual('../src/configuration').composeDetoxConfig({
+        override: {
+          'test-runner': runner,
+          configurations: {
+            only: {
+              type: deviceType
+            }
+          },
+        },
+      });
+    });
+  };
 
   describe('mocha', () => {
     it('runs successfully', async () => {

@@ -1,27 +1,39 @@
 const _ = require('lodash');
-const DetoxConfigError = require('../errors/DetoxConfigError');
+const util = require('util');
+const DetoxRuntimeError = require('../errors/DetoxRuntimeError');
 
-function composeDeviceConfig({ rawDeviceConfig, cliConfig }) {
+function composeDeviceConfig({ configurationName, rawDeviceConfig, cliConfig }) {
   if (!rawDeviceConfig.type) {
-    throwOnEmptyType();
+    throw new DetoxRuntimeError({
+      message: `Missing "type" inside detox.configurations["${configurationName}"]`,
+      hint: `Usually, 'type' property should hold the device type to test on (e.g. "ios.simulator" or "android.emulator").\nCheck again:`,
+      debugInfo: inspectObj(rawDeviceConfig),
+    });
   }
 
-  rawDeviceConfig.device = cliConfig.deviceName || rawDeviceConfig.device || rawDeviceConfig.name;
+  const device = cliConfig.deviceName || rawDeviceConfig.device || rawDeviceConfig.name;
+
+  if (_.isEmpty(device)) {
+    throw new DetoxRuntimeError({
+      message: `'device' property is empty in detox.configurations["${configurationName}"]`,
+      hint: `It should hold the device query to run on (e.g. { "type": "iPhone 11 Pro" }, { "avdName": "Nexus_5X_API_29" }).\nCheck again:`,
+      debugInfo: inspectObj(rawDeviceConfig),
+    });
+  }
+
+  rawDeviceConfig.device = device;
   delete rawDeviceConfig.name;
-
-  if (_.isEmpty(rawDeviceConfig.device)) {
-    throwOnEmptyDevice();
-  }
 
   return rawDeviceConfig;
 }
 
-function throwOnEmptyType() {
-  throw new DetoxConfigError(`'type' property is missing, should hold the device type to test on (e.g. "ios.simulator" or "android.emulator")`);
-}
-
-function throwOnEmptyDevice() {
-  throw new DetoxConfigError(`'device' property is empty, should hold the device query to run on (e.g. { "type": "iPhone 11 Pro" }, { "avdName": "Nexus_5X_API_29" })`);
+function inspectObj(obj) {
+  return util.inspect(obj, {
+    colors: false,
+    compact: false,
+    depth: 0,
+    showHidden: false,
+  });
 }
 
 module.exports = composeDeviceConfig;

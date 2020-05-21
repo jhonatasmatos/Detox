@@ -1,9 +1,11 @@
 describe('composeDeviceConfig', () => {
-  let composeDeviceConfig, cliConfig, rawDeviceConfig;
+  let composeDeviceConfig;
+  let configurationName, cliConfig, rawDeviceConfig;
 
   beforeEach(() => {
     composeDeviceConfig = require('./composeDeviceConfig');
     cliConfig = {};
+    configurationName = 'someConfig';
     rawDeviceConfig = {
       type: 'ios.simulator',
       device: {
@@ -12,17 +14,21 @@ describe('composeDeviceConfig', () => {
     };
   });
 
-  const compose = () => composeDeviceConfig({ cliConfig, rawDeviceConfig });
+  const compose = () => composeDeviceConfig({
+    configurationName,
+    cliConfig,
+    rawDeviceConfig,
+  });
 
   describe('validation', () => {
     it('should throw if configuration driver (type) is not defined', () => {
       delete rawDeviceConfig.type;
-      expect(compose).toThrowError(/type.*missing.*ios.simulator.*android.emulator/);
+      expect(compose).toThrowError(/Missing.*"type".*inside.*someConfig/);
     });
 
     it('should throw if device query is not defined', () => {
       delete rawDeviceConfig.device;
-      expect(compose).toThrowError(/device.*empty.*device.*query.*type.*avdName/);
+      expect(compose).toThrowError(/device.*empty.in.*someConfig[\s\S]*should hold.*query.*type.*avdName/);
     });
   });
 

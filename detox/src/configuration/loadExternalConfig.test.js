@@ -11,17 +11,10 @@ describe('loadExternalConfig', () => {
     loadExternalConfig = require('./loadExternalConfig');
   });
 
-  it('should implicitly use package.json config if it has "detox" section', async () => {
+  it('should implicitly use .detoxrc, even if there is package.json', async () => {
     const { filepath, config } = await loadExternalConfig({ cwd: DIR_PRIORITY });
 
-    expect(filepath).toBe(path.join(DIR_PRIORITY, 'package.json'))
-    expect(config).toMatchObject({ configurations: expect.anything() });
-  });
-
-  it('should implicitly use .detoxrc if package.json has no "detox" section', async () => {
-    const { filepath, config } = await loadExternalConfig({ cwd: DIR_DETOXRC });
-
-    expect(filepath).toBe(path.join(DIR_DETOXRC, '.detoxrc.yml'))
+    expect(filepath).toBe(path.join(DIR_PRIORITY, '.detoxrc'))
     expect(config).toMatchObject({ configurations: expect.anything() });
   });
 

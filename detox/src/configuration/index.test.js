@@ -36,6 +36,7 @@ describe('composeDetoxConfig', () => {
           cleanup: true,
           reuse: true,
           'record-logs': 'all',
+          'runner-config': 'e2e/.mocharc.js',
         },
         userParams: {
           initGlobals: false,
@@ -43,6 +44,11 @@ describe('composeDetoxConfig', () => {
         },
         override: {
           artifacts: {
+            pathBuilder: class {
+              constructor() {
+                this.testProperty = 42;
+              }
+            },
             plugins: {
               log: 'none',
               video: 'failing',
@@ -63,6 +69,9 @@ describe('composeDetoxConfig', () => {
           location: path.join(__dirname, '__mocks__/configuration/detoxrc/.detoxrc.yml'),
         },
         artifactsConfig: {
+          pathBuilder: {
+            testProperty: 42,
+          },
           plugins: {
             log: {
               enabled: true,
@@ -88,6 +97,10 @@ describe('composeDetoxConfig', () => {
           type: 'ios.simulator',
           device: 'iPhone XS',
         }),
+        runnerConfig: {
+          testRunner: 'mocha',
+          runnerConfig: 'e2e/.mocharc.js',
+        },
         sessionConfig: expect.objectContaining({
           server: 'ws://localhost:9999',
           sessionId: 'external file works',
