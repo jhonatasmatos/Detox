@@ -20,9 +20,7 @@ module.exports.builder = {
 };
 
 module.exports.handler = async function build(argv) {
-  const { meta, deviceConfig } = await composeDetoxConfig({
-    argv,
-  });
+  const { meta, deviceConfig } = await composeDetoxConfig({ argv });
 
   const buildScript = deviceConfig.build;
 

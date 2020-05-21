@@ -31,19 +31,19 @@ async function composeDetoxConfig({
     });
   }
 
-  const deviceConfigName  = selectConfiguration({
+  const configName  = selectConfiguration({
     detoxConfig,
     cliConfig,
   });
 
   const deviceConfig = composeDeviceConfig({
     cliConfig,
-    rawDeviceConfig: detoxConfig.configurations[deviceConfigName],
+    rawDeviceConfig: detoxConfig.configurations[configName],
   });
 
   const artifactsConfig = composeArtifactsConfig({
     cliConfig,
-    configurationName: deviceConfigName,
+    configurationName: configName,
     detoxConfig,
     deviceConfig,
   });
@@ -61,6 +61,10 @@ async function composeDetoxConfig({
   });
 
   return {
+    meta: {
+      configuration: configName,
+      location: cosmiResult && cosmiResult.filepath,
+    },
     artifactsConfig,
     behaviorConfig,
     deviceConfig,

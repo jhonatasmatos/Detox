@@ -27,12 +27,27 @@ describe('composeDetoxConfig', () => {
       );
     });
 
-
     it('should return a complete Detox config merged with the file configuration', async () => {
       const config = await configuration.composeDetoxConfig({
         cwd: path.join(__dirname, '__mocks__/configuration/detoxrc'),
-        configuration: 'another',
+        argv: {
+          configuration: 'another',
+          'device-name': 'iPhone XS',
+          cleanup: true,
+          reuse: true,
+          'record-logs': 'all',
+        },
+        userParams: {
+          initGlobals: false,
+          launchApp: false,
+        },
         override: {
+          artifacts: {
+            plugins: {
+              log: 'none',
+              video: 'failing',
+            },
+          },
           configurations: {
             another: {
               type: 'ios.simulator',
@@ -43,11 +58,35 @@ describe('composeDetoxConfig', () => {
       });
 
       expect(config).toMatchObject({
-        artifactsConfig: expect.objectContaining({}),
-        behaviorConfig: expect.objectContaining({}),
+        meta: {
+          configuration: 'another',
+          location: path.join(__dirname, '__mocks__/configuration/detoxrc/.detoxrc.yml'),
+        },
+        artifactsConfig: {
+          plugins: {
+            log: {
+              enabled: true,
+              keepOnlyFailedTestsArtifacts: false,
+            },
+            video: {
+              enabled: true,
+              keepOnlyFailedTestsArtifacts: true,
+            },
+          },
+        },
+        behaviorConfig: {
+          init: {
+            exposeGlobals: false,
+            launchApp: false,
+            reinstallApp: false,
+          },
+          cleanup: {
+            shutdownDevice: true,
+          }
+        },
         deviceConfig: expect.objectContaining({
           type: 'ios.simulator',
-          device: 'iPhone X',
+          device: 'iPhone XS',
         }),
         sessionConfig: expect.objectContaining({
           server: 'ws://localhost:9999',
